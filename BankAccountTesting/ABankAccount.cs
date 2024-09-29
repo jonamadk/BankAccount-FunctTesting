@@ -9,8 +9,8 @@ namespace BankAccountTesting
     public class ABankAccount
     {
 
-        
 
+        // 1. Constructor: EQUIVALENCE PARTIONING //
 
         [TestCase("0abc123def6789", 100, TestName = "ShouldSetTheAccountNumberAndTheBalanceWhenConstructed")]
         public void ShouldSetTheAccountNumberAndTheBalanceWhenConstructed(string accountNumber, decimal initialBalance)
@@ -23,16 +23,17 @@ namespace BankAccountTesting
 
 
 
-
         [TestCase("0abc123def6789", -200, TestName = "ShouldThrowArgumentExceptionWhenConstructedForConstructedWithLessThanZero")]
         [TestCase("", 500, TestName = "ShouldThrowArgumentExceptionWhenConstructedForConstructedWithWhiteSpace")]
         [TestCase("", -500, TestName = "ShouldThrowArgumentExceptionWhenConstructedForWhiteSpaceAndBalanceLessthanZero")]
-        public void ShouldThrowArgumentExceptionWhenAccountNumberAndBalanceIsConstructed(string accountNumber, decimal initialBalance)
+        [TestCase(null, 100, TestName = "ShouldThrowArgumentExceptionWhenConstructedForNullAccountNumber")]
+        public void ShouldThrowArgumentExceptionWhenAccountNumberAndBalanceIsConstructed(string? accountNumber, decimal initialBalance)
         {
 
             Assert.Throws<ArgumentException>(() => new BankAccount(accountNumber, initialBalance));
         }
 
+        // 2. Deposit: EQUIVALENCE PARTIONING //
 
         [TestCase(10, TestName = "ShouldIncreaseBalaneAfterDeposti")]
         public void ShouldIncreaseBalanceAfterDeposit(decimal amount)
@@ -48,6 +49,7 @@ namespace BankAccountTesting
 
         }
 
+
         [TestCase(-10, TestName = "ShouldThrowArgumentExceptionWhenDepositAmountIsLessThanZero")]
         [TestCase(0, TestName = "ShouldThrowArgumentExceptionWhenDepositAmountIsEqualToZero")]
         public void ShouldThrowArgumentExceptionWhenDepositAmountLessThanEqualToZero(decimal amount)
@@ -61,6 +63,7 @@ namespace BankAccountTesting
 
         }
 
+        // 4. Withdraw: EQUIVALENCE PARTIONING //
 
         [TestCase(10, TestName = "ShouldDecreaseBalanceAfterWithdraw")]
         public void ShouldDecreaseBalanceAfterWithdraw(decimal amount)
@@ -102,6 +105,8 @@ namespace BankAccountTesting
         }
 
 
+        // 4. GetAccountStatus: EQUIVALENCE PARTIONING //
+
         [TestCase(50, "Low", TestName = "ShouldReturnAccountStatusAsLow")]
         [TestCase(500, "Normal", TestName = "ShouldReturnAccountStatusAsNormal")]
         [TestCase(1500, "High", TestName = "ShouldReturnAccountStatusAsHigh")]
@@ -120,6 +125,8 @@ namespace BankAccountTesting
 
         }
 
+        // 5. TransferTo : EQUIVALENCE PARTIONING //
+        // 5.1 TransferTo : Transfer between valid accounts//
 
         [TestCase(100, TestName = "ShouldDecreaseBalanceAndIncreaseTheRecipientBalanceAfterTransfer")]
         public void ShouldDecreaseBalanceAndIncreaseTheRecipientBalanceAfterTransfer(decimal amount)
@@ -141,6 +148,7 @@ namespace BankAccountTesting
             Assert.That(sut.Balance, Is.EqualTo(400));
         }
 
+        // 5.3 TransferTo : Transfers with invalid amounts: Amount > Balance //
 
         [TestCase(300, TestName = "ShouldThrowInvalidOperationExceptionWhenTransferAmountGreaterThanBalanceForPositiveAmount")]
         public void ShouldThrowInvalidOperationExceptionWhenTransferAmountGreaterThanBalanceForPositiveAmount(decimal amount)
@@ -161,6 +169,10 @@ namespace BankAccountTesting
 
 
         }
+
+
+        // 5.2 TransferTo : Transfers with insufficient funds  //
+
 
         [TestCase(300, TestName = "ShouldThrowInvalidOperationExceptionWhenTransferAmountGreaterThanBalanceForPositiveAmount")]
 
@@ -183,6 +195,7 @@ namespace BankAccountTesting
 
         }
 
+        // 5.3 TransferTo : Transfers with invalid amounts //
 
         [TestCase(-100, TestName = "ShouldThrowArgumentExceptionWhenTransferAmountLessThanZero")]
         [TestCase(0, TestName = "ShouldThrowArgumentExceptionWhenTransferAmountIsZero")]
@@ -204,9 +217,32 @@ namespace BankAccountTesting
 
         }
 
+        // 5.4 TransferTo: Transfers to null recipient accounts //
+
+        [TestCase(100, TestName = "ShouldThrowArgumentNullExceptionWhenRecipientIsNullForAmountLessThanBalance")]
+        [TestCase(-10, TestName = "ShouldThrowArgumentNullExceptionWhenRecipientIsNullForNegativeAmount")]
+        [TestCase(300, TestName = "ShouldThrowArgumentNullExceptionWhenRecipientIsNullForAmountGreaterThanBalance")]
 
 
-        // 2 BOUNDARY VALUE ANALYSIS //
+        public void ShouldThrowNullArgumentExceptionForTransferWhenRecipientIsNull(decimal amount)
+        {
+           
+
+            string accountNumber = "0abc123def6789";
+            decimal initialBalance = 200;
+
+            BankAccount recipient = null;
+            var sut = new BankAccount(accountNumber, initialBalance);
+            
+
+            Assert.Throws<ArgumentNullException>(() => sut.TransferTo(recipient, amount));
+
+
+        }
+
+
+
+        // 2 CONSTRUCTOR : BOUNDARY VALUE ANALYSIS //
         [TestCase("", 500, TestName = "Constructor_EmptyAccountNumber")]
         [TestCase("123456789", -1, TestName = "Constructor_NegativeBalance")]
         [TestCase("123456789", 0, TestName = "Constructor_ZeroBalance")]
@@ -284,8 +320,8 @@ namespace BankAccountTesting
 
         }
 
-      
-       
+
+        // 2. DEPOSIT METHOD : BOUNDARY VALUE ANALYSIS
         [TestCase(0, TestName = "DepositZero")]
         [TestCase(-0.01, TestName = "DepositJustBelowZero")]
         [TestCase(0.01, TestName = "DepositJustAboveZero")]
@@ -334,7 +370,7 @@ namespace BankAccountTesting
         }
 
 
-        //WITHDRAW METHOD
+        // 2. WITHDRAW METHOD : BOUNDARY VALUE ANALYSIS
 
         [TestCase(0, TestName = "WithdrawZero")]
         [TestCase(-0.0001, TestName = "WithdrawJustBelowZero")]
@@ -393,7 +429,8 @@ namespace BankAccountTesting
         }
 
 
-        // 3.  Boundary Value Analysis For GetAccountStatus Method
+        // 3.  GETACCOUNTSTATUS : BOUNDARY VALUE ANALYSIS //
+
         [TestCase(99.999,"Low", TestName = "GetAccountStatusJustBelowLowThreshold(99.999)")]
         [TestCase(99.99, "Low",TestName = "GetAccountStatusJustBelowLowThreshold(99.99)")]
         [TestCase(100, "Normal", TestName = "GetAccountStatusMinNormalThreshold")]
@@ -414,12 +451,13 @@ namespace BankAccountTesting
 
       
 
-        //  4.1 : Trasferring the entire Balance
-        //  4.2 : Transferring a very small amount (e.g 0.01)
-        //  Extra Case: Transferring Zero Balance)
-        [TestCase(100, TestName = "TransferToEntireBalance")]
-        [TestCase(0.01, TestName = "TransferVerySmallBalance")]
-        [TestCase(0, TestName = "TransferJustZeroBalance")]
+        // 4. TRANSFERTO : BOUNDARY VALUE ANALYSIS //
+            
+        
+
+        [TestCase(100, TestName = "TransferToEntireBalance")]     //  4.1 : Trasferring the entire Balance
+        [TestCase(0.01, TestName = "TransferVerySmallBalance")]   // 4.2 : Transferring a very small amount(e.g 0.01)//
+        [TestCase(0, TestName = "TransferJustZeroBalance")]            //  Extra Case: Transferring Zero Balance
         [TestCase(-0.1, TestName = "TransferJustBelowZeroBalance")]
         [TestCase(101, TestName = "TransferJustAboveBalance")]
         [TestCase(99, TestName = "TransferJustBelowBalance")]
@@ -490,8 +528,76 @@ namespace BankAccountTesting
         }
 
 
+        // 3.2 COMBINATORIAL TESTING
+
+        [Test, Combinatorial]
+        public void CombinatorialTesting([Values(1000, 1)] decimal initialBalance,
+                                         [Values(10, 100, 200)] decimal depositAmount,
+                                         [Values(50, 500, 10)] decimal withdrawAmount)
+        {
+
+            
+
+            string expectedAccountStatus;
 
 
+            var sut = new BankAccount("0abc456789", initialBalance);
+            sut.Deposit(depositAmount);
+            sut.Withdraw(withdrawAmount);
+
+            string actualAccountStatusIs = sut.GetAccountStatus();
+            
+            decimal finnalBalanceIs = initialBalance + depositAmount - withdrawAmount;
+
+            if (finnalBalanceIs < 100)
+                expectedAccountStatus = "Low";
+
+            else if (finnalBalanceIs < 1000)
+
+                expectedAccountStatus = "Normal";
+            else
+                expectedAccountStatus = "High";
+
+            Assert.That(sut.Balance, Is.EqualTo(finnalBalanceIs));
+
+            Assert.That(actualAccountStatusIs, Is.EqualTo(expectedAccountStatus));
+        }
+
+
+        // 3.2 PAIRWISE TESTING
+
+        [Test, Pairwise]
+        public void PairwiseTesting([Values(1000, 1)] decimal initialBalance,
+                                       [Values(10, 100, 200)] decimal depositAmount,
+                                       [Values(50, 500, 10)] decimal withdrawAmount)
+        {
+
+
+
+            string expectedAccountStatus;
+
+
+            var sut = new BankAccount("0abc456789", initialBalance);
+            sut.Deposit(depositAmount);
+            sut.Withdraw(withdrawAmount);
+
+            string actualAccountStatusIs = sut.GetAccountStatus();
+
+            decimal finnalBalanceIs = initialBalance + depositAmount - withdrawAmount;
+
+            if (finnalBalanceIs < 100)
+                expectedAccountStatus = "Low";
+
+            else if (finnalBalanceIs < 1000)
+
+                expectedAccountStatus = "Normal";
+            else
+                expectedAccountStatus = "High";
+
+            Assert.That(sut.Balance, Is.EqualTo(finnalBalanceIs));
+
+            Assert.That(actualAccountStatusIs, Is.EqualTo(expectedAccountStatus));
+        }
 
     }
 }
