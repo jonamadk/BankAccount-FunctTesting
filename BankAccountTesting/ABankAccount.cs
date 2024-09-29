@@ -1,5 +1,6 @@
 using BankAccountLib;
 using NUnit.Framework.Internal;
+using System.Runtime.ConstrainedExecution;
 using System.Security.Principal;
 
 namespace BankAccountTesting
@@ -114,6 +115,99 @@ namespace BankAccountTesting
 
 
         }
+
+
+        [TestCase(100, TestName = "ShouldDecreaseBalanceAndIncreaseTheRecipientBalanceAfterTransfer")]
+        public void ShouldDecreaseBalanceAndIncreaseTheRecipientBalanceAfterTransfer(decimal amount)
+        {
+            string recpAccountNumber = "recp123def6789";
+            decimal recpInitialBalance = 100;
+
+            string accountNumber = "0abc123def6789";
+            decimal initialBalance = 500;
+
+
+            var recipient = new BankAccount(recpAccountNumber, recpInitialBalance);
+
+            var sut = new BankAccount(accountNumber, initialBalance);
+
+            sut.TransferTo(recipient, amount);
+
+            
+            Assert.That(recipient.Balance, Is.EqualTo(200));
+            Assert.That(sut.Balance, Is.EqualTo(400));
+        }
+
+
+        [TestCase(300, TestName = "ShouldThrowInvalidOperationExceptionWhenTransferAmountGreaterThanBalanceForPositiveAmount")]
+        public void ShouldThrowInvalidOperationExceptionWhenTransferAmountGreaterThanBalanceForPositiveAmount(decimal amount)
+        {
+            string recpAccountNumber = "recp123def6789";
+            decimal recpInitialBalance = 100;
+
+            string accountNumber = "0abc123def6789";
+            decimal initialBalance = 200;
+
+
+            var recipient = new BankAccount(recpAccountNumber, recpInitialBalance);
+
+            var sut = new BankAccount(accountNumber, initialBalance);
+
+           
+
+            Assert.Throws<InvalidOperationException>(() => sut.TransferTo(recipient, amount));
+
+
+        }
+
+        [TestCase(300, TestName = "ShouldThrowInvalidOperationExceptionWhenTransferAmountGreaterThanBalanceForPositiveAmount")]
+        
+        public void ShouldThrowInvalidOperationExceptionForInsufficientFund(decimal amount)
+        {
+            string recpAccountNumber = "recp123def6789";
+            decimal recpInitialBalance = 100;
+
+            string accountNumber = "0abc123def6789";
+            decimal initialBalance = 200;
+
+
+            var recipient = new BankAccount(recpAccountNumber, recpInitialBalance);
+
+            var sut = new BankAccount(accountNumber, initialBalance);
+
+
+
+            Assert.Throws<InvalidOperationException>(() => sut.TransferTo(recipient, amount));
+
+
+        }
+
+
+        [TestCase(-100, TestName = "ShouldThrowArgumentExceptionWhenTransferAmountLessThanZero")]
+        [TestCase(0, TestName = "ShouldThrowArgumentExceptionWhenTransferAmountIsZero")]
+        public void ShouldThrowArgumentExceptionForTransferWithInvalidAmounts(decimal amount)
+        {
+            string recpAccountNumber = "recp123def6789";
+            decimal recpInitialBalance = 100;
+
+            string accountNumber = "0abc123def6789";
+            decimal initialBalance = 200;
+
+
+            var recipient = new BankAccount(recpAccountNumber, recpInitialBalance);
+
+            var sut = new BankAccount(accountNumber, initialBalance);
+
+
+
+            Assert.Throws<ArgumentException>(() => sut.TransferTo(recipient, amount));
+
+
+        }
+
+
+
+
 
     }
 
