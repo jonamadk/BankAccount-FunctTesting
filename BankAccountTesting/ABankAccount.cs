@@ -131,7 +131,7 @@ namespace BankAccountTesting
             decimal initialBalance = 500;
 
 
-            var recipient = new BankAccount(recpAccountNumber, recpInitialBalance);
+            BankAccount recipient = new BankAccount(recpAccountNumber, recpInitialBalance);
             var sut = new BankAccount(accountNumber, initialBalance);
 
             sut.TransferTo(recipient, amount);
@@ -152,7 +152,7 @@ namespace BankAccountTesting
             decimal initialBalance = 200;
 
 
-            var recipient = new BankAccount(recpAccountNumber, recpInitialBalance);
+            BankAccount recipient = new BankAccount(recpAccountNumber, recpInitialBalance);
             var sut = new BankAccount(accountNumber, initialBalance);
 
 
@@ -173,7 +173,7 @@ namespace BankAccountTesting
             decimal initialBalance = 200;
 
 
-            var recipient = new BankAccount(recpAccountNumber, recpInitialBalance);
+            BankAccount recipient = new BankAccount(recpAccountNumber, recpInitialBalance);
             var sut = new BankAccount(accountNumber, initialBalance);
 
 
@@ -195,7 +195,7 @@ namespace BankAccountTesting
             decimal initialBalance = 200;
 
 
-            var recipient = new BankAccount(recpAccountNumber, recpInitialBalance);
+            BankAccount recipient = new BankAccount(recpAccountNumber, recpInitialBalance);
             var sut = new BankAccount(accountNumber, initialBalance);
 
 
@@ -284,7 +284,7 @@ namespace BankAccountTesting
 
         }
 
-        // Deposit Method
+      
        
         [TestCase(0, TestName = "DepositZero")]
         [TestCase(-0.01, TestName = "DepositJustBelowZero")]
@@ -314,7 +314,7 @@ namespace BankAccountTesting
         {
             string accountNumber = "0abc456789";
             decimal initialBalance = 100;
-            decimal amount = decimal.MaxValue;
+            decimal amount = decimal.MaxValue - initialBalance;
 
             var sut = new BankAccount(accountNumber, initialBalance);
             sut.Deposit(amount);
@@ -332,6 +332,164 @@ namespace BankAccountTesting
             Assert.Throws<ArgumentException>(
                         () => sut.Deposit(amount));
         }
+
+
+        //WITHDRAW METHOD
+
+        [TestCase(0, TestName = "WithdrawZero")]
+        [TestCase(-0.0001, TestName = "WithdrawJustBelowZero")]
+        [TestCase(0.01, TestName = "WtihdrawJustAboveZero(0.01)")]
+        [TestCase(0.001, TestName = "WtihdrawJustAboveZero(0.001)")]
+        [TestCase(9.99, TestName = "WithdrawJustBelowBalance")]
+        [TestCase(10, TestName = "WithdrawEqualsBalance")]
+        [TestCase(10.01, TestName = "WithdrawJustAboveBalance")]
+        public void EvalaueWithdraw_BoundaryValueAnalysis(decimal amount)
+        {
+            string accountNumber = "0abc456789";
+            decimal initialBalance = 10;
+
+            var sut = new BankAccount(accountNumber, initialBalance);
+            if (amount <= 0)
+            {
+                Assert.Throws<ArgumentException>(
+                        () => sut.Withdraw(amount));
+            }
+            else if (amount > sut.Balance) {
+                Assert.Throws<InvalidOperationException>(
+                       () => sut.Withdraw(amount));
+
+            }
+            else {
+            
+                sut.Withdraw(amount);
+                Assert.That(sut.Balance, Is.EqualTo(initialBalance - amount));
+            }
+        }
+
+
+        [Test]
+        public void Withdraw_VeryLargePositiveValue()
+
+        {
+            string accountNumber = "0abc456789";
+            decimal initialBalance = 100;
+            decimal amount = decimal.MaxValue;
+
+            var sut = new BankAccount(accountNumber, initialBalance);
+            Assert.Throws<InvalidOperationException>(
+                   () => sut.Withdraw(amount));
+        }
+
+        [Test]
+        public void Withdraw_VeryLargeNegativeValue()
+        {
+            string accountNumber = "0abc456789";
+            decimal initialBalance = 100;
+            decimal amount = decimal.MinValue;
+
+            var sut = new BankAccount(accountNumber, initialBalance);
+            Assert.Throws<ArgumentException>(
+                        () => sut.Withdraw(amount));
+        }
+
+
+        // 3.  Boundary Value Analysis For GetAccountStatus Method
+        [TestCase(99.999,"Low", TestName = "GetAccountStatusJustBelowLowThreshold(99.999)")]
+        [TestCase(99.99, "Low",TestName = "GetAccountStatusJustBelowLowThreshold(99.99)")]
+        [TestCase(100, "Normal", TestName = "GetAccountStatusMinNormalThreshold")]
+        [TestCase(100.01, "Normal", TestName = "GetAccountStatus_JustAboveMinNormalThreshold")]
+        [TestCase(999.99, "Normal", TestName = "GetAccountStatus_JustBelowHighThreshold")]
+        [TestCase(1000,"High", TestName = "GetAccountStatus_MinHighThreshold")]
+        [TestCase(1000.01, "High",TestName = "GetAccountStatus_JustAboveMinHighThreshold")]
+        public void EvalauteGetAccountStatus_BoundaryValueAnalysis(decimal Balance, string expectedSatus)
+        {
+            string accountNumber = "0abc456789";
+            decimal initialBalance = Balance;
+
+            var sut = new BankAccount(accountNumber, initialBalance); 
+            string actualStatus = sut.GetAccountStatus();
+
+            Assert.That(actualStatus, Is.EqualTo(expectedSatus));
+        }
+
+      
+
+        //  4.1 : Trasferring the entire Balance
+        //  4.2 : Transferring a very small amount (e.g 0.01)
+        //  Extra Case: Transferring Zero Balance)
+        [TestCase(100, TestName = "TransferToEntireBalance")]
+        [TestCase(0.01, TestName = "TransferVerySmallBalance")]
+        [TestCase(0, TestName = "TransferJustZeroBalance")]
+        [TestCase(-0.1, TestName = "TransferJustBelowZeroBalance")]
+        [TestCase(101, TestName = "TransferJustAboveBalance")]
+        [TestCase(99, TestName = "TransferJustBelowBalance")]
+
+
+        public void TransferTo_VerySmallBalance( decimal amount)
+        {
+
+
+            string recpAccountNumber = "recp123def6789";
+            decimal recpInitialBalance = 100;
+
+            string accountNumber = "0abc123def6789";
+            decimal initialBalance = 100;
+
+
+            BankAccount recipient = new BankAccount(recpAccountNumber, recpInitialBalance);
+            var sut = new BankAccount(accountNumber, initialBalance);
+
+            if (amount > 0 && amount > sut.Balance)
+            {
+                Assert.Throws<InvalidOperationException>(
+                       () => sut.TransferTo(recipient, amount));
+
+            } 
+
+           else if (amount > 0)
+            {
+                sut.TransferTo(recipient, amount);
+
+                Assert.That(sut.Balance, Is.EqualTo(initialBalance - amount));
+                Assert.That(recipient.Balance, Is.EqualTo(recpInitialBalance + amount));
+
+            }
+            else
+            {
+                Assert.Throws<ArgumentException>(() => sut.TransferTo(recipient, amount));
+            }
+        }
+
+
+
+
+        // 4.3 Transferring to an account with a very high balance
+
+        [Test]
+
+        public void TransferTo_RecipientWithVeryhighBalance()
+        {
+
+
+            string recpAccountNumber = "recp123def6789";
+            decimal recpInitialBalance = decimal.MaxValue;
+
+            string accountNumber = "0abc123def6789";
+            decimal initialBalance = 100;
+
+            decimal amount = 10;
+
+            BankAccount recipient = new BankAccount(recpAccountNumber, recpInitialBalance - amount);
+            var sut = new BankAccount(accountNumber, initialBalance);
+
+            sut.TransferTo(recipient, amount);
+
+            Assert.That(sut.Balance, Is.EqualTo(initialBalance - amount));
+            Assert.That(recipient.Balance, Is.EqualTo(recpInitialBalance));
+
+        }
+
+
 
 
 
