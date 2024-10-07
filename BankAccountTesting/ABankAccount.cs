@@ -9,9 +9,10 @@ namespace BankAccountTesting
     public class ABankAccount
     {
 
+     
 
         // 1. Constructor: EQUIVALENCE PARTIONING //
-
+        [Category("Equivalence Partioning")]
         [TestCase("0abc123def6789", 100, TestName = "ShouldSetTheAccountNumberAndTheBalanceWhenConstructed")]
         public void ShouldSetTheAccountNumberAndTheBalanceWhenConstructed(string accountNumber, decimal initialBalance)
         {
@@ -22,7 +23,7 @@ namespace BankAccountTesting
         }
 
 
-
+        [Category("Equivalence Partioning")]
         [TestCase("0abc123def6789", -200, TestName = "ShouldThrowArgumentExceptionWhenConstructedForConstructedWithLessThanZero")]
         [TestCase("", 500, TestName = "ShouldThrowArgumentExceptionWhenConstructedForConstructedWithWhiteSpace")]
         [TestCase("", -500, TestName = "ShouldThrowArgumentExceptionWhenConstructedForWhiteSpaceAndBalanceLessthanZero")]
@@ -35,6 +36,7 @@ namespace BankAccountTesting
 
         // 2. Deposit: EQUIVALENCE PARTIONING //
 
+        [Category("Equivalence Partioning")]
         [TestCase(10, TestName = "ShouldIncreaseBalaneAfterDeposti")]
         public void ShouldIncreaseBalanceAfterDeposit(decimal amount)
         {
@@ -65,6 +67,7 @@ namespace BankAccountTesting
 
         // 4. Withdraw: EQUIVALENCE PARTIONING //
 
+        [Category("Equivalence Partioning")]
         [TestCase(10, TestName = "ShouldDecreaseBalanceAfterWithdraw")]
         public void ShouldDecreaseBalanceAfterWithdraw(decimal amount)
         {
@@ -78,7 +81,7 @@ namespace BankAccountTesting
 
         }
 
-
+        [Category("Equivalence Partioning")]
         [TestCase(100, -20, TestName = "ShouldThrowArgumentExceptionWhenWithdrawAmountIsNegative")]
         [TestCase(100, 0, TestName = "ShouldThrowArgumentExceptionWhenWithdrawAmountIsZero")]
 
@@ -93,6 +96,7 @@ namespace BankAccountTesting
             Assert.Throws<ArgumentException>(() => sut.Withdraw(amount));
         }
 
+        [Category("Equivalence Partioning")]
 
         [TestCase(100, 200, TestName = "ShouldThrowInvalidOperationExceptionWhenWithdrawAmountGreaterThanBalance")]
         public void ShouldThrowInvalidOperationExceptionWhenWithdrawAmountGreaterThanBalance(decimal initialBalance, decimal amount)
@@ -106,7 +110,7 @@ namespace BankAccountTesting
 
 
         // 4. GetAccountStatus: EQUIVALENCE PARTIONING //
-
+        [Category("Equivalence Partioning")]
         [TestCase(50, "Low", TestName = "ShouldReturnAccountStatusAsLow")]
         [TestCase(500, "Normal", TestName = "ShouldReturnAccountStatusAsNormal")]
         [TestCase(1500, "High", TestName = "ShouldReturnAccountStatusAsHigh")]
@@ -127,7 +131,7 @@ namespace BankAccountTesting
 
         // 5. TransferTo : EQUIVALENCE PARTIONING //
         // 5.1 TransferTo : Transfer between valid accounts//
-
+        [Category("Equivalence Partioning")]
         [TestCase(100, TestName = "ShouldDecreaseBalanceAndIncreaseTheRecipientBalanceAfterTransfer")]
         public void ShouldDecreaseBalanceAndIncreaseTheRecipientBalanceAfterTransfer(decimal amount)
         {
@@ -149,7 +153,7 @@ namespace BankAccountTesting
         }
 
         // 5.3 TransferTo : Transfers with invalid amounts: Amount > Balance //
-
+        [Category("Equivalence Partioning")]
         [TestCase(300, TestName = "ShouldThrowInvalidOperationExceptionWhenTransferAmountGreaterThanBalanceForPositiveAmount")]
         public void ShouldThrowInvalidOperationExceptionWhenTransferAmountGreaterThanBalanceForPositiveAmount(decimal amount)
         {
@@ -173,7 +177,7 @@ namespace BankAccountTesting
 
         // 5.2 TransferTo : Transfers with insufficient funds  //
 
-
+        [Category("Equivalence Partioning")]
         [TestCase(300, TestName = "ShouldThrowInvalidOperationExceptionWhenTransferAmountGreaterThanBalanceForPositiveAmount")]
 
         public void ShouldThrowInvalidOperationExceptionForInsufficientFund(decimal amount)
@@ -196,7 +200,7 @@ namespace BankAccountTesting
         }
 
         // 5.3 TransferTo : Transfers with invalid amounts //
-
+        [Category("Equivalence Partioning")]
         [TestCase(-100, TestName = "ShouldThrowArgumentExceptionWhenTransferAmountLessThanZero")]
         [TestCase(0, TestName = "ShouldThrowArgumentExceptionWhenTransferAmountIsZero")]
         public void ShouldThrowArgumentExceptionForTransferWithInvalidAmounts(decimal amount)
@@ -218,7 +222,7 @@ namespace BankAccountTesting
         }
 
         // 5.4 TransferTo: Transfers to null recipient accounts //
-
+        [Category("Equivalence Partioning")]
         [TestCase(100, TestName = "ShouldThrowArgumentNullExceptionWhenRecipientIsNullForAmountLessThanBalance")]
         [TestCase(-10, TestName = "ShouldThrowArgumentNullExceptionWhenRecipientIsNullForNegativeAmount")]
         [TestCase(300, TestName = "ShouldThrowArgumentNullExceptionWhenRecipientIsNullForAmountGreaterThanBalance")]
@@ -241,7 +245,7 @@ namespace BankAccountTesting
         }
 
 
-
+        [Category("Boundary Value Analysis")]
         // 2 CONSTRUCTOR : BOUNDARY VALUE ANALYSIS //
         [TestCase("", 500, TestName = "Constructor_EmptyAccountNumber")]
         [TestCase("123456789", -1, TestName = "Constructor_NegativeBalance")]
@@ -264,7 +268,7 @@ namespace BankAccountTesting
             }
 
         }
-
+        [Category("Boundary Value Analysis")]
 
         [TestCase("123456789", 1e-28, TestName = "VerySmallPositivevalueBoundary")]
         [TestCase("123456789", 1e-27, TestName = "JustBelowVerySmallPositivevalueBoundary")]
@@ -279,7 +283,7 @@ namespace BankAccountTesting
                 Assert.That(sut.Balance, Is.EqualTo(initialBalance));
 
         }
-
+        [Category("Boundary Value Analysis")]
         [TestCase("123456789", -1e-28, TestName = "VerySmallPositivevalueBoundary")]
         [TestCase("123456789", -1e-27, TestName = "JustBelowVerySmallPositivevalueBoundary")]
         public void EvaluateConstructor_VerySmallNegativeValue(string accountNumber, decimal initialBalance)
@@ -290,7 +294,7 @@ namespace BankAccountTesting
                     () => new BankAccount(accountNumber, initialBalance));
         }
 
-
+        [Category("Boundary Value Analysis")]
         [TestCase()]
         public void EvaluateConstructor_VerylargePositiveValue()
         {
